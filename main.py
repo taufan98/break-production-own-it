@@ -23,11 +23,20 @@ def main() -> int:
     if "\n" in LINE:
         print("entry must be a single line", file=sys.stderr)
         return 1
+    if LINE != LINE.strip():
+        print("entry must not start or end with whitespace", file=sys.stderr)
+        return 1
     out_dir = os.environ.get("MAKEFUN_OUTPUT_DIR", "/output")
     os.makedirs(out_dir, exist_ok=True)
     path = os.path.join(out_dir, "entry.txt")
     with open(path, "w", encoding="utf-8") as f:
         f.write(LINE + "\n")
+    # Read back and confirm the file holds exactly the line we validated.
+    with open(path, "r", encoding="utf-8") as f:
+        written = f.read()
+    if written != LINE + "\n":
+        print("written entry does not match the validated line", file=sys.stderr)
+        return 1
     print(f"wrote {len(LINE)} chars to {path}")
     return 0
 
